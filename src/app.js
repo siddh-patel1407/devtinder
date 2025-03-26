@@ -2,19 +2,32 @@ const express = require("express");
 
 const app = express();
 
+const { admin } = require("./midelware/midelware");
 
-app.use( "/test",(req,res)=>{
-    res.send("server responding")
-    
+// const app = express();
+
+app.use("/admin",admin)
+
+app.get("/admin/getalldata",(req,res)=>{
+    res.send("data is lodaed")
 });
-app.use( "/",(req,res)=>{
-    res.send("server responding from home page")
+
+app.get("/admin/deletdata",(req,res)=>{
+        res.send("data is gone")})
+
+
+// app.use( "/test",(req,res)=>{
+//     res.send("server responding")
     
-});
-app.use( "/hello",(req,res)=>{
-    res.send("server responding for hello")
+// });
+// app.use( "/",(req,res)=>{
+//     res.send("server responding from home page")
     
-});
+// });
+// app.use( "/hello",(req,res)=>{
+//     res.send("server responding for hello")
+    
+// });
 
 app.listen(3000,()=>{
     console.log("hello");
