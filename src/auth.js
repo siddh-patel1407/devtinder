@@ -12,3 +12,4 @@ app.get("/admin/getalldata",(req,res)=>{
 app.get("/admin/deletdata",(req,res)=>{
     res.send("data is gone")
 });
+
