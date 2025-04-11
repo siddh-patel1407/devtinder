@@ -6,6 +6,7 @@ const {
   validateUpdatepassword,
 } = require("../utils/authentication");
 const validator = require("validator");
+const bcrypt = require("bcrypt");
 
 profileRoute.get("/profile/view", userAuth, async (req, res) => {
   try {
@@ -36,23 +37,26 @@ profileRoute.patch("/profile/edit", userAuth, async (req, res) => {
 
 profileRoute.patch("/profile/forgotpassword", userAuth, async (req, res) => {
   try {
-    if (!validateUpdatepassword) {
-      throw new Error("updated not possible");
+    const { password } = req.body;
+
+    if (!password) {
+      throw new Error("Password is required");
     }
 
-    const { password } = req.body;
     if (!validator.isStrongPassword(password)) {
-      throw new Error("not a stong password");
+      throw new Error("Not a strong password");
     }
+
+    const passwordHash = await bcrypt.hash(password, 10);
     const loginuser = req.user;
 
-    Object.keys(req.body).forEach((key) => (loginuser[key] = req.body[key]));
+    loginuser.password = passwordHash;
+
     await loginuser.save();
 
-    res.send("updated succsesfully")
-
+    res.send("Password updated successfully");
   } catch (err) {
-    res.status(400).send("somthing went worang " + err.message);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 

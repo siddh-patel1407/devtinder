@@ -3,6 +3,7 @@ const { userAuth } = require("../midelware/midelware");
 
 const requestsRoute = express.Router();
 const connectionRequest = require("../models/connectionRequest");
+const User = require("../models/user");
 
 requestsRoute.post(
   "/request/send/:status/:toUserId",
@@ -18,6 +19,15 @@ requestsRoute.post(
         return ReadableByteStreamController.status(400).json({
           message: "invalid status type" + status,
         });
+      }
+
+      if(fromUserId == toUserId){
+        throw new Error("you can not send request to your self")
+      };
+
+      const isToUserId = await User.findById(toUserId);
+      if (!isToUserId) {
+        return res.status(400).json({ message: "user dose not exist" });
       }
 
       const existConnectionrequest = await connectionRequest.findOne({
@@ -39,7 +49,7 @@ requestsRoute.post(
       const data = await request.save();
 
       res.json({
-        message: "connection request send succsesfully",
+        message: req.user.firstName + " is "+ status + " in " + isToUserId.firstName,
         data,
       });
     } catch (err) {
