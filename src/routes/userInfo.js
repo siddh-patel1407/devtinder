@@ -63,6 +63,11 @@ userInfo.get("/user/feed", userAuth, async (req, res) => {
   try {
     const logingUser = req.user;
 
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit > 50 ? 50 : limit;
+    const skip = (page - 1) * limit;
+
     const request = await connectionRequest
       .find({
         $or: [{ fromUserId: logingUser._id }, { toUserId: logingUser._id }],
@@ -81,7 +86,10 @@ userInfo.get("/user/feed", userAuth, async (req, res) => {
         { _id: { $nin: Array.from(hideUserFromFeed) } },
         { _id: { $ne: logingUser._id } },
       ],
-    }).select("firstName lastName photoUrl age gender about");
+    })
+      .select("firstName lastName photoUrl age gender about")
+      .skip(skip)
+      .limit(limit);
     res.send(users);
   } catch (err) {
     res.status(400).send("something went wrong " + err.message);
