@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const authRouter = require("./routes/auth");
 const profileRoute = require("./routes/profile");
 const requestsRoute = require("./routes/requests");
+const userInfo = require("./routes/userInfo")
 
 app.use(express.json());
 app.use(cookieparser());
@@ -15,6 +16,7 @@ app.use(cookieparser());
 app.use("/",authRouter);
 app.use("/",profileRoute);
 app.use("/",requestsRoute);
+app.use("/",userInfo);
 
 connectDb()
   .then(() => {

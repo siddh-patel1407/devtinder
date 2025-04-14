@@ -21,9 +21,9 @@ requestsRoute.post(
         });
       }
 
-      if(fromUserId == toUserId){
-        throw new Error("you can not send request to your self")
-      };
+      if (fromUserId == toUserId) {
+        throw new Error("you can not send request to your self");
+      }
 
       const isToUserId = await User.findById(toUserId);
       if (!isToUserId) {
@@ -49,11 +49,52 @@ requestsRoute.post(
       const data = await request.save();
 
       res.json({
-        message: req.user.firstName + " is "+ status + " in " + isToUserId.firstName,
+        message:
+          req.user.firstName + " is " + status + " in " + isToUserId.firstName,
         data,
       });
     } catch (err) {
       res.status(400).send("somethin went woarng " + err.message);
+    }
+  }
+);
+
+requestsRoute.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      // Only allow "accepted" or "rejected"
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).json({
+          message: "Invalid status type: " + status,
+        });
+      }
+
+      // Check if the request exists and belongs to the user
+      const existingRequest = await connectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+
+      if (!existingRequest) {
+        return res.status(400).json({ message: "Request does not exist" });
+      }
+
+      // Update the status
+      existingRequest.status = status;
+      const data = await existingRequest.save();
+
+      res
+        .status(200)
+        .json({ message: "Request status updated to " + status, data });
+    } catch (err) {
+      res.status(400).send("Something went wrong: " + err.message);
     }
   }
 );
