@@ -49,7 +49,7 @@ authRouter.post("/login", async (req, res) => {
       res.cookie("tokan", tokan, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      res.send("succesefully login");
+      res.send(user);
     } else {
       throw new Error("something not ");
     }
